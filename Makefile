@@ -1,13 +1,13 @@
 
 c: cli
 cli:
-	python cli.py 1 16 -i default -t "Timeline complète de Reflet d'Acide" -m -io
+	python cli.py 1 16 -i default -t "Timeline complète de Reflets d'Acide" -m -io
 	$(MAKE) show
 cli-main:
-	python cli.py 1 16 -r default -t "Timeline des personnages principaux de Reflet d'Acide" -m -io
+	python cli.py 1 16 -r default -t "Timeline des personnages principaux de Reflets d'Acide" -m -io
 	$(MAKE) show
 cli-short:
-	python cli.py 1 12 -r énoriel zarakai zehirmann trichelieu wrandrall roger alia -t "Timeline simplifiée de Reflet d'Acide" -m -io
+	python cli.py 1 12 -r énoriel zarakai zehirmann trichelieu wrandrall roger alia -t "Timeline simplifiée de Reflets d'Acide" -m -io
 	$(MAKE) show
 cli-test:
 	python cli.py 1 4 -r default -m -io

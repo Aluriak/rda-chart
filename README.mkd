@@ -1,4 +1,4 @@
-# Génération d'un graphique de sankey pour Reflet d'Acide
+# Génération d'un graphique de sankey pour Reflets d'Acide
 
 En utilisant les données de [Neamar](https://github.com/Neamar/sagas-mp3),
 il est possible de définir, pour chaque chapitre de chaque épisode,
@@ -12,13 +12,32 @@ génération d'un graphique sankey avec [plotly](https://plot.ly/python/sankey-d
 
 
 ## installation
-D'abord, il faut les données:
+D'abord, il faut cloner (ou [télécharger](https://github.com/Aluriak/rda-chart/archive/master.zip)) le dépôt :
+
+    git clone https://github.com/Aluriak/rda-chart.git
+
+Puis récupérer les données (à mettre dans le dépôt directement, comme montré dans les [définitions](definitions.py)):
 
     git clone https://github.com/Neamar/sagas-mp3.git
 
 Et ensuite, il faut installer les dépendances:
 
     pip install -r requirements.txt
+
+
+## Utilisation
+Le plus simple reste le CLI. Par exemple, pour avoir la visualisation des principaux personnages sur les 16 épisodes :
+
+    python cli.py 1 16 --title "Timeline de Reflets d'Acide"
+
+Pour avoir la même visualisation, mais uniquement des personnages principaux, en fusionnant les chapitres quant c'est possible,
+et en ayant les personnages en entrée et sortie :
+
+    python cli.py 1 16 -r default -m -io -t "Timeline des personnages principaux de Reflets d'Acide"
+
+Les options sont décrites dans [les sections suivantes](#Paramtres-du-CLI). Sinon, une aide est disponible :
+
+    python cli.py --help
 
 
 ## Choix d'implémentation
