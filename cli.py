@@ -70,7 +70,6 @@ if __name__ == "__main__":
     if 'NONE' in restrict:
         restrict = set()
     for name in set(ignore):
-        print('NAME:', name)
         if name.startswith(('—', '^')): ignore -= {name, name.lstrip('—^')}
     for name in set(restrict):
         if name.startswith(('—', '^')): restrict -= {name, name.lstrip('—^')}
