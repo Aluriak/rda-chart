@@ -15,6 +15,11 @@ CHAR_ALIASES = {
     'GREDIN 4': 'GREDINS',
     'GREDIN 5': 'GREDINS',
     'CHEF GREDIN': 'GREDINS',
+    # Adoprixtoxis
+    'GLOOMY': 'ADOPRIXTOXIS',
+    'KELLOGS': 'ADOPRIXTOXIS',
+    'KEVIN': 'ADOPRIXTOXIS',
+    'SYPHILIS': 'ADOPRIXTOXIS',
 }
 DEFAULT_RESTRICT_CHARS = {
     'ZEHIRMANN',
@@ -49,7 +54,6 @@ DEFAULT_IGNORE_CHARS = {
     'PÉTULIA',
     'RENÉ',
     'RICO',
-    'SYPHILIS', 'GLOOMY', 'KEVIN', 'KELLOGS',  # Adoprixtoxis
     'TOUS',
     'TOUTE PETITE VOIX',
     'TYPE',
