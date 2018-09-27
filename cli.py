@@ -22,6 +22,8 @@ def parse_cli():
     parser.add_argument('--title', '-t', type=str,
                         default=build_sankey.DEFAULT_TITLE,
                         help="Title given to the final chart")
+    parser.add_argument('--output-file', '-o', default=None,
+                        help="File to write with output HTML data. If None, outputs in stdout.")
     # flags
     parser.add_argument('--explicit-numbering', '-e', action='store_true', default=False,
                         help="episodes parameter is understood as a list of episodes to consider instead of a range")
@@ -67,17 +69,26 @@ if __name__ == "__main__":
         restrict |= definitions.DEFAULT_RESTRICT_CHARS
     if 'NONE' in restrict:
         restrict = set()
+    for name in set(ignore):
+        print('NAME:', name)
+        if name.startswith(('—', '^')): ignore -= {name, name.lstrip('—^')}
+    for name in set(restrict):
+        if name.startswith(('—', '^')): restrict -= {name, name.lstrip('—^')}
     title = args.title.strip()
 
     print('EPISODES:', tuple(episodes))
     print('  IGNORE:', ', '.join(ignore))
     print('RESTRICT:', ', '.join(restrict))
-    # exit()
 
-    build_sankey.sankey_chart_for_episodes(
+    html = build_sankey.sankey_chart_for_episodes(
         episodes, ignore, restrict,
         title=title,
         black_theme=args.black_theme,
         merge_identicals=args.merge_identicals,
         io_chapters=args.io_chapters,
     )
+    if args.output_file:
+        with open(args.output_file, 'w') as fd:
+            fd.write(html)
+    else:  # write it in stdout
+        print(html)

@@ -1,8 +1,11 @@
+"""Routines using extract_data.py module to build a sankey graph."""
 
 from pprint import pprint
 from extract_data import associations_for_episodes, merge_identical_chapters, pretty_chapter_uid, add_io_chapters
 from definitions import DEFAULT_TITLE
 
+import plotly
+import plotly.graph_objs as go
 
 
 def next_chapter_of_chapter(all_chapters:tuple) -> dict:
@@ -49,10 +52,9 @@ def build_links(all_chapters:tuple) -> [(int, int, int, str)]:
             yield chapter, successor, len(chars), ', '.join(chars)
 
 
-def make_sankey_chart(labels, sources, targets, values, descs, title:str=DEFAULT_TITLE, black_theme:bool=False):
-    import plotly
-    import plotly.graph_objs as go
-
+def make_sankey_chart(labels, sources, targets, values, descs,
+                      title:str=DEFAULT_TITLE, black_theme:bool=False) -> str:
+    "Return the HTML describing a sankey chart, according to given args"
     data = {
         'type': 'sankey',
         # 'width': 4000,
@@ -81,12 +83,13 @@ def make_sankey_chart(labels, sources, targets, values, descs, title:str=DEFAULT
         })
         layout['font']['color'] = 'white'
     fig = {'data': [data], 'layout': layout}
-    plotly.offline.plot(fig, auto_open=False)
+    return plotly.offline.plot(fig, auto_open=False, output_type='div')
 
 
 def sankey_chart_for_episodes(episodes:range=range(1, 17), ignore_chars:set=set(),
                               restrict_chars:set=None, merge_identicals:bool=False,
-                              io_chapters:bool=True, **kwargs) -> dict:
+                              io_chapters:bool=True, **kwargs) -> str:
+    "Return the HTML encoding the sankey chart"
     chapter_to_chars = associations_for_episodes(episodes, ignore_chars=ignore_chars, restrict_chars=restrict_chars)
     if merge_identicals:
         chapter_to_chars = merge_identical_chapters(chapter_to_chars)
@@ -109,7 +112,7 @@ def sankey_chart_for_episodes(episodes:range=range(1, 17), ignore_chars:set=set(
     targets = tuple(chart_labels_index[target] for target in targets)
 
     # make the chart
-    make_sankey_chart(chart_labels, sources, targets, values, descs, **kwargs)
+    return make_sankey_chart(chart_labels, sources, targets, values, descs, **kwargs)
 
 
 if __name__ == "__main__":

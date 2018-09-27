@@ -107,10 +107,13 @@ Rendre le graphique avec thème sombre.
 
 Ce comportement est activé avec l'option `-b`.
 
+### Gestion des sorties
+Le graphe de sortie est encodé en HTML, dans une balise `<div>` facile à intégrer ailleurs.
+Par défaut, le code sera affiché dans la sortie standard, mais ce comportement n'est peut-être pas désirable.
+Ainsi, l'option `-o` permet de donner un fichier de sortie (exemple: `-o out.html`).
 
 
 ## TODO
 - utiliser [pysaga](https://github.com/aluriak/pysaga) pour l'extraction de données
 - uploader des exemples de sorties
-- option dans le CLI et dans le code pour générer un HTML/div au lieu d'un fichier complet (pour intégration dans genhtml-markdown, par exemple)
 - mettre en couleur les arcs où un ensemble choisi de personnages sont présents (par défaut, nos 5 compagnons)
