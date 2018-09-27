@@ -1,4 +1,4 @@
-# Génération d'un graphique de sankey pour Reflet d'Acide
+# Génération de graphiques de sankey pour Reflets d'Acide
 
 En utilisant les données de [Neamar](https://github.com/Neamar/sagas-mp3),
 il est possible de définir, pour chaque chapitre de chaque épisode,
@@ -12,7 +12,11 @@ génération d'un graphique sankey avec [plotly](https://plot.ly/python/sankey-d
 
 
 ## installation
-D'abord, il faut les données:
+D'abord, il faut cloner (ou [télécharger](https://github.com/Aluriak/rda-chart/archive/master.zip)) le dépôt :
+
+    git clone https://github.com/Aluriak/rda-chart.git
+
+Puis récupérer les données (à mettre dans le dépôt directement, comme montré dans les [définitions](definitions.py)):
 
     git clone https://github.com/Neamar/sagas-mp3.git
 
@@ -21,8 +25,92 @@ Et ensuite, il faut installer les dépendances:
     pip install -r requirements.txt
 
 
+## Utilisation
+Le plus simple reste le CLI. Par exemple, pour avoir la visualisation des principaux personnages sur les 16 épisodes :
+
+    python cli.py 1 16 --title "Timeline de Reflets d'Acide"
+
+Pour avoir la même visualisation, mais uniquement des personnages principaux, en fusionnant les chapitres quant c'est possible,
+et en ayant les personnages en entrée et sortie :
+
+    python cli.py 1 16 -r default -m -io -t "Timeline des personnages principaux de Reflets d'Acide"
+
+Les options sont décrites dans [les sections suivantes](#Paramtres-du-CLI). Sinon, une aide est disponible :
+
+    python cli.py --help
+
+
+## Choix d'implémentation
+### Alias
+Certains personnages changent de noms (comme la dragonne, qui devient Alia), ou ont leur nom orthographié différemment dans la base.
+Les [alias](definitions.py) corrigent ce problème, sous la forme d'un mapping utilisé pendant la résolution des noms :
+
+```python
+CHAR_ALIASES = {
+    'DRAGONNE': 'ALIA',
+    'SACHER': 'SACHER-MASOCH',
+    'BELIAL': 'BÉLIAL',
+    'MORTYS': 'MORTHYS',
+    'BERNIES': 'BERNIE',
+    'BERNIE 2': 'BERNIE',
+}
+```
+
+### Personnages ignorés par défaut
+La [liste des personnages à ignorer par défaut](definitions.py) est motivée par les considérations suivantes.
+
+1. Ce sont principalement des personnages présents dans un seul chapitre qui sont ignorés.
+- L'autre principal groupe ignoré sont les aggrégats, comme «GROUPE» ou «TOUS», qui ne sont pas à proprement parler des personnages.
+- Des personnages mineurs, tels que les «GARS» sont également ignorés.
+- Enfin, le Narrateur est ignoré par défaut.
+
+#### Le Narrateur
+Le cas du narrateur est à part : il est partout. Au point de lier tous les chapitres entre eux,
+cassant l'intérêt de la visualisation. Il est simple de modifier la définition pour voir l'effet :
+on obtient une représentation quasiment longiligne, très dense.
+
+D'une certaine manière, enlever le Narrateur est logique : il ne s'intègre pas dans
+les unités de temps et d'espace comme les personnages.
+
+
+
+## Paramètres du CLI
+### Épisodes considérés
+Il est possible de restreindre le graphique à une plage d'épisode (3-9 par exemple), ou a un ensemble donné (les épisodes 2, 7, 8, 11 et 14, par exemple).
+
+Les premiers arguments à fournir sont les bornes minimales et maximales (incluses) des épisodes à utiliser.
+Si l'option `-e` est donnée, les premiers arguments forment une liste arbitraire d'épisodes à utiliser, dans l'ordre indiqué.
+Il est donc possible de donner plusieurs fois le même épisode, de ne regarder que les épisodes pairs, ou de faire la saga à l'envers.
+
+
+### Fusion des chapitres identiques
+Deux chapitres sont identiques si :
+- ils font intervenir exactement les même personnages
+- il n'y a pas de chapitre entre les deux qui fasse intervenir un des personnages
+
+En regardant les chaînes de chapitres identiques, il est possible, plutôt qu'afficher à la suite
+les chapitres faisant intervenir les même personnages, d'afficher tous les chapitres en même temps,
+simplifiant la visualisation en enlevant des chapitres qui n'apportent pas d'information.
+
+Ce comportement est activé avec l'option `-m`.
+
+### Chapitres d'introduction et de conclusion des personnages
+Pour améliorer la clarté du graphique, il est possible d'ajouter de faux chapitres
+avant et après le premiers et derniers chapitres.
+Ces chapitres, 1 par personnage, est spécifique audit personnage. Cela permet de mieux voir
+les états initiaux et terminaux des personnages.
+
+Ce comportement est activé avec l'option `-io`.
+
+### Thème sombre
+Rendre le graphique avec thème sombre.
+
+Ce comportement est activé avec l'option `-b`.
+
+
+
 ## TODO
 - utiliser [pysaga](https://github.com/aluriak/pysaga) pour l'extraction de données
-- faire la doc pour le CLI
 - uploader des exemples de sorties
 - option dans le CLI et dans le code pour générer un HTML/div au lieu d'un fichier complet (pour intégration dans genhtml-markdown, par exemple)
+- mettre en couleur les arcs où un ensemble choisi de personnages sont présents (par défaut, nos 5 compagnons)
