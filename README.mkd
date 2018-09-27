@@ -7,9 +7,6 @@ quels sont les personnages présents.
 Le module [extract_data.py](extract_data.py) s'occupe de générer,
 pour chaque paire épisode/chapitre, l'ensemble des personnages détectés.
 
-NOTE: le personnage *TOUS* est parfois détecté. De futures versions devront le virer, ou essayer de détecter un personnage implicite
-(qui ne parle pas, mais qui est présent).
-
 Le module [poc_sankey.py](poc_sankey.py) implémente une preuve de concept de
 génération d'un graphique sankey avec [plotly](https://plot.ly/python/sankey-diagram).
 
@@ -22,3 +19,9 @@ D'abord, il faut les données:
 Et ensuite, il faut installer les dépendances:
 
     pip install -r requirements.txt
+
+
+## TODO
+- utiliser [pysaga](https://github.com/aluriak/pysaga) pour l'extraction de données
+- faire la doc pour le CLI
+- uploader des exemples de sorties
