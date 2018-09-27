@@ -2,8 +2,12 @@
 
 """
 
+
 import argparse
+
+import definitions
 import build_sankey
+
 
 def parse_cli():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -25,12 +29,15 @@ def parse_cli():
                         help="Use a black theme for the final chart")
     parser.add_argument('--merge-identicals', '-m', action='store_true', default=False,
                         help="Merge chapters involving exactly the same characters")
+    parser.add_argument('--io-chapters', '-io', action='store_true', default=False,
+                        help="Add phony chapters introducing and finishing all characters")
     return parser.parse_args()
 
 
 CHARACTER_MAP = {
     'zarakai': 'zarakaï',
     'énoriel': 'enoriel',
+    'dragonne': 'alia',
 }
 
 
@@ -40,13 +47,26 @@ if __name__ == "__main__":
     if args.explicit_numbering:
         episodes = tuple(args.episodes)
     else:
-        episodes = range(*args.episodes)
+        if len(args.episodes) == 2:
+            start, end = args.episodes
+            step = 1
+        elif len(args.episodes) == 3:
+            start, end, step = args.episodes
+        else:
+            raise ValueError('episodes parameter needs 2 or 3 values')
+        episodes = range(start, end+1, step)
     ignore = set(map(str.upper, (CHARACTER_MAP.get(c, c) for c in args.ignore)))
     restrict = set(map(str.upper, (CHARACTER_MAP.get(c, c) for c in args.restrict_to)))
-    if len(ignore) == 1 and next(iter(ignore)) == 'DEFAULT':
-        ignore = build_sankey.DEFAULT_IGNORE_CHARS
-    if len(restrict) == 1 and next(iter(restrict)) == 'DEFAULT':
-        restrict = build_sankey.DEFAULT_RESTRICT_CHARS
+    if 'DEFAULT' in ignore:
+        ignore.remove('DEFAULT')
+        ignore |= definitions.DEFAULT_IGNORE_CHARS
+    if 'NONE' in ignore:
+        ignore = set()
+    if 'DEFAULT' in restrict:
+        restrict.remove('DEFAULT')
+        restrict |= definitions.DEFAULT_RESTRICT_CHARS
+    if 'NONE' in restrict:
+        restrict = set()
     title = args.title.strip()
 
     print('EPISODES:', tuple(episodes))
@@ -54,4 +74,10 @@ if __name__ == "__main__":
     print('RESTRICT:', ', '.join(restrict))
     # exit()
 
-    build_sankey.sankey_chart_for_episodes(episodes, ignore, restrict, title=title, black_theme=args.black_theme, merge_identicals=args.merge_identicals)
+    build_sankey.sankey_chart_for_episodes(
+        episodes, ignore, restrict,
+        title=title,
+        black_theme=args.black_theme,
+        merge_identicals=args.merge_identicals,
+        io_chapters=args.io_chapters,
+    )

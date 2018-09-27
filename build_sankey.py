@@ -1,33 +1,7 @@
 
-from extract_data import associations_for_episodes
-
-
-DEFAULT_RESTRICT_CHARS = {'ZEHIRMANN', 'TRICHELIEU', 'ENORIEL', 'WRANDRALL', 'NARRATEUR', 'ZARAKAÏ', 'DRAGONNE', 'ROGER', 'KYO'}
-DEFAULT_IGNORE_CHARS = {'TOUS', 'VOIX', 'GARS', 'GARS 2', 'GROUPE'}
-DEFAULT_TITLE = "Timeline des personnages de Reflets d'Acide"
-
-
-def pretty_chapter_uid(episode:int, chapter:int) -> str:
-    """
-
-    >>> pretty_chapter_uid(1, 1)
-    'E01C01'
-    >>> pretty_chapter_uid(4, 78)
-    'E04C78'
-    >>> pretty_chapter_uid(13, 42)
-    'E13C42'
-    >>> pretty_chapter_uid(130, 420)
-    'E130C420'
-    >>> pretty_chapter_uid(130, (42, 10, 23))
-    'E130C42,10,23'
-
-    """
-    if isinstance(chapter, int):
-        return f"E{str(episode).rjust(2, '0')}C{str(chapter).rjust(2, '0')}"
-    else:  # it's a tuple of int
-        assert isinstance(chapter, tuple)
-        assert all(isinstance(c, int) for c in chapter)
-        return f"E{str(episode).rjust(2, '0')}C{','.join(str(c).rjust(2, '0') for c in chapter)}"
+from pprint import pprint
+from extract_data import associations_for_episodes, merge_identical_chapters, pretty_chapter_uid, add_io_chapters
+from definitions import DEFAULT_TITLE
 
 
 
@@ -39,11 +13,10 @@ def next_chapter_of_chapter(all_chapters:tuple) -> dict:
     ones that reference a character.
 
     """
-    for episode, chapters in all_chapters:
-        for chapter, characters in chapters:
-            successors = tuple(found_nexts_of(all_chapters, episode, chapter, characters))
-            # print(f'\tSUCCESSORS of {pretty_chapter_uid(episode, chapter)}: {successors}')
-            yield (episode, chapter), set(successors)
+    for episode, chapter, name, characters in all_chapters:
+        successors = tuple(found_nexts_of(all_chapters, episode, chapter, characters))
+        print(f'\tSUCCESSORS of {pretty_chapter_uid(episode, chapter)}: {successors}')
+        yield name, set(successors)
 
 
 def found_nexts_of(all_chapters:tuple, prev_episode:int, prev_chapter:int, prev_characters:set):
@@ -53,23 +26,21 @@ def found_nexts_of(all_chapters:tuple, prev_episode:int, prev_chapter:int, prev_
 
     """
     prev_characters = set(prev_characters)
-    for episode_nb, chapters in all_chapters:
-        for chapter_nb, characters in chapters:
-            if not prev_characters: break  # no more possible successors
-            if (episode_nb, chapter_nb) <= (prev_episode, prev_chapter): continue  # too soon
-            # print(f'SEARCHING: next of {pretty_chapter_uid(prev_episode, prev_chapter)} searched in {pretty_chapter_uid(episode_nb, chapter_nb)}…')
-            overlap = prev_characters & characters
-            if overlap:  # there is an overlap !
-                prev_characters -= characters
-                # print(f'\tOVERLAP BETWEEN {prev_episode}/{prev_chapter} and {episode_nb}/{chapter_nb} on {"/".join(overlap)}')
-                yield (episode_nb, chapter_nb), frozenset(overlap)
+    for episode_nb, chapter_nb, name, characters in all_chapters:
+        if not prev_characters: break  # no more possible successors
+        if (episode_nb, chapter_nb) <= (prev_episode, prev_chapter): continue  # too soon
+        # print(f'SEARCHING: next of {pretty_chapter_uid(prev_episode, prev_chapter)} searched in {pretty_chapter_uid(episode_nb, chapter_nb)}…')
+        overlap = prev_characters & characters
+        if overlap:  # there is an overlap !
+            prev_characters -= characters
+            # print(f'\tOVERLAP BETWEEN {prev_episode}/{prev_chapter} and {episode_nb}/{chapter_nb} on {"/".join(overlap)}')
+            yield name, frozenset(overlap)
 
 
-def pretty_list_of_chapters(all_chapters:tuple):
+def pretty_list_of_chapters(all_chapters:tuple) -> [str]:
     "Maps function pretty_chapter_uid on all given chapters"
-    for episode, chapters in all_chapters:
-        for chapter, _ in chapters:
-            yield pretty_chapter_uid(episode, chapter)
+    for episode, chapter, name, characters in all_chapters:
+        yield name
 
 def build_links(all_chapters:tuple) -> [(int, int, int, str)]:
     "Yield for each chapter all the following chapters and their overlap"
@@ -84,6 +55,11 @@ def make_sankey_chart(labels, sources, targets, values, descs, title:str=DEFAULT
 
     data = {
         'type': 'sankey',
+        # 'width': 4000,
+        # 'height': 1000,
+        'orientation': 'h',
+        'valuesuffix': " personnages",
+        'valueformat': '.i',
         'node': {
             'pad': 15,
             'thickness': 3,
@@ -108,30 +84,35 @@ def make_sankey_chart(labels, sources, targets, values, descs, title:str=DEFAULT
     plotly.offline.plot(fig, auto_open=False)
 
 
-def sankey_chart_for_episodes(episodes:range=range(1, 17), ignore_chars:set=set(), restrict_chars:set=None, merge_identicals:bool=False, **kwargs) -> dict:
-    chapter_to_chars = tuple(associations_for_episodes(episodes, ignore_chars=ignore_chars, restrict_chars=restrict_chars, merge_identicals=merge_identicals))
-    chart_labels = tuple(pretty_list_of_chapters(chapter_to_chars))
-    chart_labels_index = {l: i for i, l in enumerate(chart_labels)}
-    all_characters = set.union(*(
-        characters
-        for episode_nb, chapters in chapter_to_chars
-        for chapter_nb, characters in chapters
-    ))
-    from pprint import pprint
+def sankey_chart_for_episodes(episodes:range=range(1, 17), ignore_chars:set=set(),
+                              restrict_chars:set=None, merge_identicals:bool=False,
+                              io_chapters:bool=True, **kwargs) -> dict:
+    chapter_to_chars = associations_for_episodes(episodes, ignore_chars=ignore_chars, restrict_chars=restrict_chars)
+    if merge_identicals:
+        chapter_to_chars = merge_identical_chapters(chapter_to_chars)
+    chapter_to_chars = tuple(chapter_to_chars)
+    all_characters = set.union(*(chars for _e, _c, _n, chars in chapter_to_chars))
     print('ALL CHARS:')
     pprint(all_characters)
-    # print()
-    # print(chapter_to_chars)
-    # print('LABELS:', chart_labels)
-    # print(tuple(next_chapter_of_chapter(chapter_to_chars)))
+
+    # populate input/output chapters tuple
+    if io_chapters:
+        chapter_to_chars = tuple(add_io_chapters(chapter_to_chars, all_characters))
+
+    # Build data for the sankey chart
+    chart_labels = tuple(pretty_list_of_chapters(chapter_to_chars))
+    chart_labels_index = {l: i for i, l in enumerate(chart_labels)}
     sources, targets, values, descs = zip(*build_links(chapter_to_chars))
+
     # map sources and targets to their index in the labels list
-    sources = tuple(chart_labels_index[pretty_chapter_uid(*source)] for source in sources)
-    targets = tuple(chart_labels_index[pretty_chapter_uid(*target)] for target in targets)
+    sources = tuple(chart_labels_index[source] for source in sources)
+    targets = tuple(chart_labels_index[target] for target in targets)
+
     # make the chart
     make_sankey_chart(chart_labels, sources, targets, values, descs, **kwargs)
 
 
 if __name__ == "__main__":
-    # RESTRICT_CHARS = None
+    from definitions import DEFAULT_RESTRICT_CHARS, DEFAULT_IGNORE_CHARS
+    # DEFAULT_RESTRICT_CHARS = None  # uncomment to get full timeline
     sankey_chart_for_episodes(range(6, 12), ignore_chars=DEFAULT_IGNORE_CHARS, restrict_chars=DEFAULT_RESTRICT_CHARS)
