@@ -18,6 +18,9 @@ extract:
 poc:
 	python poc_sankey.py
 
+retrieve-rda-data:
+	git clone https://github.com/Neamar/sagas-mp3.git
+
 
 show:
 	xdg-open temp-plot.html
