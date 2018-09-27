@@ -23,6 +23,8 @@ def parse_cli():
                         help="episodes parameter is understood as a list of episodes to consider instead of a range")
     parser.add_argument('--black-theme', '-b', action='store_true', default=False,
                         help="Use a black theme for the final chart")
+    parser.add_argument('--merge-identicals', '-m', action='store_true', default=False,
+                        help="Merge chapters involving exactly the same characters")
     return parser.parse_args()
 
 
@@ -52,4 +54,4 @@ if __name__ == "__main__":
     print('RESTRICT:', ', '.join(restrict))
     # exit()
 
-    build_sankey.sankey_chart_for_episodes(episodes, ignore, restrict, title=title, black_theme=args.black_theme)
+    build_sankey.sankey_chart_for_episodes(episodes, ignore, restrict, title=title, black_theme=args.black_theme, merge_identicals=args.merge_identicals)

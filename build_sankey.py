@@ -18,9 +18,17 @@ def pretty_chapter_uid(episode:int, chapter:int) -> str:
     'E13C42'
     >>> pretty_chapter_uid(130, 420)
     'E130C420'
+    >>> pretty_chapter_uid(130, (42, 10, 23))
+    'E130C42,10,23'
 
     """
-    return f"E{str(episode).rjust(2, '0')}C{str(chapter).rjust(2, '0')}"
+    if isinstance(chapter, int):
+        return f"E{str(episode).rjust(2, '0')}C{str(chapter).rjust(2, '0')}"
+    else:  # it's a tuple of int
+        assert isinstance(chapter, tuple)
+        assert all(isinstance(c, int) for c in chapter)
+        return f"E{str(episode).rjust(2, '0')}C{','.join(str(c).rjust(2, '0') for c in chapter)}"
+
 
 
 def next_chapter_of_chapter(all_chapters:tuple) -> dict:
@@ -100,8 +108,8 @@ def make_sankey_chart(labels, sources, targets, values, descs, title:str=DEFAULT
     plotly.offline.plot(fig, auto_open=False)
 
 
-def sankey_chart_for_episodes(episodes:range=range(1, 17), ignore_chars:set=set(), restrict_chars:set=None, **kwargs) -> dict:
-    chapter_to_chars = tuple(associations_for_episodes(episodes, ignore_chars=ignore_chars, restrict_chars=restrict_chars))
+def sankey_chart_for_episodes(episodes:range=range(1, 17), ignore_chars:set=set(), restrict_chars:set=None, merge_identicals:bool=False, **kwargs) -> dict:
+    chapter_to_chars = tuple(associations_for_episodes(episodes, ignore_chars=ignore_chars, restrict_chars=restrict_chars, merge_identicals=merge_identicals))
     chart_labels = tuple(pretty_list_of_chapters(chapter_to_chars))
     chart_labels_index = {l: i for i, l in enumerate(chart_labels)}
     all_characters = set.union(*(

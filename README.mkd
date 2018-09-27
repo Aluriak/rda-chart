@@ -21,6 +21,20 @@ Et ensuite, il faut installer les dépendances:
     pip install -r requirements.txt
 
 
+## Paramètres du CLI
+
+### Fusion des chapitres identiques
+Deux chapitres sont identiques si :
+- ils font intervenir exactement les même personnages
+- il n'y a pas de chapitre entre les deux qui fasse intervenir un des personnages
+
+En regardant les chaînes de chapitres identiques, il est possible, plutôt qu'afficher à la suite
+les chapitres faisant intervenir les même personnages, d'afficher tous les chapitres en même temps,
+simplifiant la visualisation en enlevant des chapitres qui n'apportent pas d'information.
+
+Ce comportement est activé avec l'option `-m`.
+
+
 ## TODO
 - utiliser [pysaga](https://github.com/aluriak/pysaga) pour l'extraction de données
 - faire la doc pour le CLI

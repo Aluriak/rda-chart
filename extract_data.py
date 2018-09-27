@@ -1,5 +1,7 @@
 
 import re
+import itertools
+from operator import itemgetter
 from collections import defaultdict
 
 
@@ -25,7 +27,7 @@ def read_episode_files(episodes:range=range(1, 17)) -> [(int, str)]:
         yield nb, tuple(open_episode(PATH_TEMPLATE.format(nb)))
 
 
-def gen_characters_per_chapter(text:str, ignore_chars:set=set(), restrict_chars:set=None) -> [set]:
+def gen_characters_per_chapter(text:str, ignore_chars:set=set(), restrict_chars:set=None) -> [(int, set)]:
     "Yield {characters in chapter} for each chapter found in given episode"
     line, prev_line, text = None, None, iter(text)
     chapter_nb, characters = None, set()
@@ -61,12 +63,39 @@ def gen_characters_per_chapter(text:str, ignore_chars:set=set(), restrict_chars:
         yield chapter_nb, characters
 
 
-def associations_for_episodes(episodes:range=range(1, 17), ignore_chars:set=set(), restrict_chars:set=None) -> dict:
+def merge_identical_chapters(chapters_chars:[(int, set)]) -> [(int, set)]:
+    """Merge (non-immediatly) consecutive chapters having the same characters"""
+    chapters_chars = tuple(chapters_chars)
+    merged_chapters = set()
+    for idx, (chapter_nb, characters) in enumerate(chapters_chars):
+        if chapter_nb in merged_chapters: continue  # this chapter was merged
+        identicals = set()
+        for next_chapter_nb, next_chars in chapters_chars[idx+1:]:
+            same_characters = next_chars == characters
+            character_overlap = next_chars & characters
+            if character_overlap and not same_characters:
+                break  # no merge possible
+            elif same_characters:  # let's merge
+                identicals.add(next_chapter_nb)
+        # if identicals:  # merge to do
+            # merged_chapters |= identicals
+            # yield (chapter_nb, *sorted(tuple(identicals))), characters
+        # else:  # no merge
+            # yield chapter_nb, characters
+        merged_chapters |= identicals
+        yield (chapter_nb, *sorted(tuple(identicals))), characters
+
+
+def associations_for_episodes(episodes:range=range(1, 17), ignore_chars:set=set(), restrict_chars:set=None, merge_identicals:bool=False) -> dict:
     """Yield pairs (episode number, chapters), where chapter is an iterable
     of pair (chapter number, characters present in chapter)"""
     iter_episodes = read_episode_files(episodes)
     for episode, text in iter_episodes:
-        chapters = tuple(gen_characters_per_chapter(text, ignore_chars, restrict_chars))
+        chapters = gen_characters_per_chapter(text, ignore_chars, restrict_chars)
+        if merge_identicals:
+            chapters = merge_identical_chapters(chapters)
+        chapters = tuple(chapters)
+        print('CHAPTERS:', chapters)
         print(f"CHAPTERS: Épisode {episode}, chapitres {min(chapters)[0]} à {max(chapters)[0]}")
         yield episode, chapters
 
