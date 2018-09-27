@@ -25,3 +25,4 @@ Et ensuite, il faut installer les dépendances:
 - utiliser [pysaga](https://github.com/aluriak/pysaga) pour l'extraction de données
 - faire la doc pour le CLI
 - uploader des exemples de sorties
+- option dans le CLI et dans le code pour générer un HTML/div au lieu d'un fichier complet (pour intégration dans genhtml-markdown, par exemple)
