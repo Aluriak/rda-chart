@@ -1,5 +1,6 @@
 """Routines using extract_data.py module to build a sankey graph."""
 
+import unidecode
 from pprint import pprint
 from extract_data import associations_for_episodes, merge_identical_chapters, pretty_chapter_uid, add_io_chapters
 from definitions import DEFAULT_TITLE
@@ -110,6 +111,8 @@ def sankey_chart_for_episodes(episodes:range=range(1, 17), ignore_chars:set=set(
     # map sources and targets to their index in the labels list
     sources = tuple(chart_labels_index[source] for source in sources)
     targets = tuple(chart_labels_index[target] for target in targets)
+    # avoid accentuated characters, because plotly do not like that
+    chart_labels = tuple(map(unidecode.unidecode, chart_labels))
 
     # make the chart
     return make_sankey_chart(chart_labels, sources, targets, values, descs, **kwargs)
