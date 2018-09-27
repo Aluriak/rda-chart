@@ -1,0 +1,9 @@
+*.html
+*.pyc
+.cache/
+Session.vim
+__pycache__/
+build/
+dist/
+sagas-mp3/
+venv/
