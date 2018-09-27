@@ -1,4 +1,4 @@
-# Génération d'un graphique de sankey pour Reflets d'Acide
+# Génération de graphiques de sankey pour Reflets d'Acide
 
 En utilisant les données de [Neamar](https://github.com/Neamar/sagas-mp3),
 il est possible de définir, pour chaque chapitre de chaque épisode,
@@ -111,5 +111,5 @@ Ce comportement est activé avec l'option `-b`.
 
 ## TODO
 - utiliser [pysaga](https://github.com/aluriak/pysaga) pour l'extraction de données
-- faire la doc pour le CLI
 - uploader des exemples de sorties
+- mettre en couleur les arcs où un ensemble choisi de personnages sont présents (par défaut, nos 5 compagnons)

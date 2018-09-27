@@ -120,7 +120,7 @@ def associations_for_episodes(episodes:range=range(1, 17), ignore_chars:set=set(
         # print('CHAPTERS:', chapters)
         # print(f"CHAPTERS: Épisode {episode}, chapitres {min(chapters)[0]} à {max(chapters)[0]}")
         for chapter, chars in chapters:
-            print(f"CHAPTER: Épisode {episode}, chapitre {chapter} avec {chars}")
+            # print(f"CHAPTER: Épisode {episode}, chapitre {chapter} avec {chars}")
             yield episode, chapter, pretty_chapter_uid(episode, chapter), chars
 
 

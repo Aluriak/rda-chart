@@ -15,7 +15,7 @@ def next_chapter_of_chapter(all_chapters:tuple) -> dict:
     """
     for episode, chapter, name, characters in all_chapters:
         successors = tuple(found_nexts_of(all_chapters, episode, chapter, characters))
-        print(f'\tSUCCESSORS of {pretty_chapter_uid(episode, chapter)}: {successors}')
+        # print(f'\tSUCCESSORS of {pretty_chapter_uid(episode, chapter)}: {successors}')
         yield name, set(successors)
 
 
@@ -92,8 +92,8 @@ def sankey_chart_for_episodes(episodes:range=range(1, 17), ignore_chars:set=set(
         chapter_to_chars = merge_identical_chapters(chapter_to_chars)
     chapter_to_chars = tuple(chapter_to_chars)
     all_characters = set.union(*(chars for _e, _c, _n, chars in chapter_to_chars))
-    print('ALL CHARS:')
-    pprint(all_characters)
+    # print('ALL CHARS:')
+    # pprint(all_characters)
 
     # populate input/output chapters tuple
     if io_chapters:
