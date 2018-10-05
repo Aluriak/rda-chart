@@ -7,6 +7,7 @@ from definitions import DEFAULT_TITLE
 
 import plotly
 import plotly.graph_objs as go
+import plotly.io as pio
 
 
 def next_chapter_of_chapter(all_chapters:tuple) -> dict:
@@ -54,7 +55,8 @@ def build_links(all_chapters:tuple) -> [(int, int, int, str)]:
 
 
 def make_sankey_chart(labels, sources, targets, values, descs,
-                      title:str=DEFAULT_TITLE, black_theme:bool=False) -> str:
+                      title:str=DEFAULT_TITLE, black_theme:bool=False,
+                      png:bool or (int, int)=False) -> str:
     "Return the HTML describing a sankey chart, according to given args"
     data = {
         'type': 'sankey',
@@ -84,7 +86,19 @@ def make_sankey_chart(labels, sources, targets, values, descs,
         })
         layout['font']['color'] = 'white'
     fig = {'data': [data], 'layout': layout}
-    return plotly.offline.plot(fig, auto_open=False, output_type='div')
+    if png:
+        kwargs = {}
+        if not isinstance(png, bool):
+            width, height = png
+            if width: kwargs['width'] = width
+            if height: kwargs['height'] = height
+        return pio.to_image(
+            fig,
+            format='png',
+            **kwargs
+        )
+    else:
+        return plotly.offline.plot(fig, auto_open=False, output_type='div')
 
 
 def sankey_chart_for_episodes(episodes:range=range(1, 17), ignore_chars:set=set(),

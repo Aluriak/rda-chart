@@ -22,6 +22,9 @@ cli-main:
 cli-short:
 	python cli.py 1 12 -r énoriel zarakai zehirmann trichelieu wrandrall roger alia -t "Timeline simplifiée de Reflets d'Acide" $(OPTIONS)
 	$(MAKE) show
+cli-png:
+	python cli.py 1 6 -i none $(OPTIONS) -t "Timeline des 6 premiers épisodes de Reflets d'Acide" -p -w 4000
+	$(MAKE) show
 cli-test:
 	python cli.py 1 4 -r default $(OPTIONS)
 	$(MAKE) show

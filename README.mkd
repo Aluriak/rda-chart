@@ -112,6 +112,12 @@ Le graphe de sortie est encodé en HTML, dans une balise `<div>` facile à inté
 Par défaut, le code sera affiché dans la sortie standard, mais ce comportement n'est peut-être pas désirable.
 Ainsi, l'option `-o` permet de donner un fichier de sortie (exemple: `-o out.html`).
 
+Il est également possible d'obtenir une version statique (png) du plot, avec l'options `--png`.
+Pour cela, il faut installer les packages nécessaires comme indiqué dans [la doc de plotly](https://plot.ly/python/static-image-export).
+Pour fixer la taille de l'image, utiliser l'option `--width` et `--height`, par exemple : `--width 2000 --height 1000`,
+indiquant que l'export doit avoir une largeur de 2000 et une hauteur de 1000. Il est possible de ne donner que la largeur ou la hauteur.
+
+
 
 ## TODO
 - utiliser [pysaga](https://github.com/aluriak/pysaga) pour l'extraction de données

@@ -3,6 +3,8 @@
 """
 
 
+import os
+import sys
 import argparse
 
 import definitions
@@ -24,6 +26,10 @@ def parse_cli():
                         help="Title given to the final chart")
     parser.add_argument('--output-file', '-o', default=None,
                         help="File to write with output HTML data. If None, outputs in stdout.")
+    parser.add_argument('--width', '-w', default=None,
+                        help="Width of image if rendered in png")
+    parser.add_argument('--height', default=None,
+                        help="Height of image if rendered in png")
     # flags
     parser.add_argument('--explicit-numbering', '-e', action='store_true', default=False,
                         help="episodes parameter is understood as a list of episodes to consider instead of a range")
@@ -33,6 +39,8 @@ def parse_cli():
                         help="Merge chapters involving exactly the same characters")
     parser.add_argument('--io-chapters', '-io', action='store_true', default=False,
                         help="Add phony chapters introducing and finishing all characters")
+    parser.add_argument('--png', '-p', action='store_true', default=False,
+                        help="Output png data instead of html")
     return parser.parse_args()
 
 
@@ -79,15 +87,27 @@ if __name__ == "__main__":
     print('  IGNORE:', ', '.join(ignore))
     print('RESTRICT:', ', '.join(restrict))
 
-    html = build_sankey.sankey_chart_for_episodes(
+    arg_png = args.png
+    if args.png:
+        if args.width and args.height:
+            arg_png = args.width, args.height
+        elif args.width:
+            arg_png = args.width, None
+        elif args.height:
+            arg_png = None, args.height
+
+    data = build_sankey.sankey_chart_for_episodes(
         episodes, ignore, restrict,
         title=title,
         black_theme=args.black_theme,
         merge_identicals=args.merge_identicals,
         io_chapters=args.io_chapters,
+        png=arg_png,
     )
+    writemode = 'wb' if isinstance(data, bytes) else 'w'
     if args.output_file:
-        with open(args.output_file, 'w') as fd:
-            fd.write(html)
+        with open(args.output_file, writemode) as fd:
+            fd.write(data)
     else:  # write it in stdout
-        print(html)
+        with os.fdopen(sys.stdout.fileno(), writemode) as fd:
+            fd.write(data)
